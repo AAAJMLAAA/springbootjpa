@@ -1,5 +1,7 @@
 package com.booway.dao.server.impl;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,15 +11,21 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.booway.dao.UserRespority;
 import com.booway.dao.server.UserServer;
 import com.booway.pojo.User;
+import com.booway.util.ExcelUtil;
 
 @Service
 public class UserServerImpl implements UserServer 
@@ -146,4 +154,64 @@ public class UserServerImpl implements UserServer
 		return list;
 	}
 
+	@Override
+	public List<User> findCondition(Date dateStart, Date dateEnd) 
+	{
+		   Specification<User> sepcification = new Specification<User>() 
+		   {
+			   
+			@Override
+			public Predicate toPredicate(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder cb)
+			{
+				Predicate predicateStart =  (dateStart != null) ? (dateEnd != null)
+			            ? cb.between(root.get("startTime"), dateStart, dateEnd)
+			                : cb.greaterThanOrEqualTo(root.get("startTime"), dateStart) 
+			                : (dateEnd != null) 
+			                    ? cb.lessThanOrEqualTo(root.get("startTime"), dateEnd):null;
+			                      
+
+				return cb.and(predicateStart);
+			}
+			   
+		};
+		List<User> list = userRespority.findAll(sepcification, new Sort(Direction.ASC,"startTime"));
+		for (User user : list)
+		{
+			System.out.println(user);
+		}
+		return list;
+	}
+
+	@Override
+	public File exportFile(String condition) 
+	{
+		File file = new File("D:\\a.xls");
+		List<User> list = userRespority.queryName(condition);
+		for (User u : list)
+		{
+			System.out.println(u);
+		}
+		Workbook workbook = new HSSFWorkbook();
+		Sheet sheet = workbook.createSheet("user");
+		
+		try
+		{
+			ExcelUtil.createData(list, sheet);
+			
+		}
+		catch (Exception e1) 
+		{
+			e1.printStackTrace();
+		} 
+		
+		try(FileOutputStream fos = new FileOutputStream(file);)
+		{
+			workbook.write(fos);
+		}
+		catch(Exception e)
+		{
+			System.out.println(e.getMessage());
+		}
+		return file;
+	}
 }

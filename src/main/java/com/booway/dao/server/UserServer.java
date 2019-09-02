@@ -1,11 +1,11 @@
 package com.booway.dao.server;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 
 import com.booway.pojo.User;
 
@@ -28,5 +28,16 @@ public interface UserServer
 	 * @return
 	 */
 	List<User> findCondition(User user);
+	
+	/**
+	 * 时间段查询
+	 * @param dateStart
+	 * @param dateEnd
+	 * @return
+	 */
+	public List<User> findCondition(Date dateStart,Date dateEnd);
+	
+	public File exportFile(String condition);
+
 
 }
