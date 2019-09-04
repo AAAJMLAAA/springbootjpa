@@ -8,16 +8,13 @@ import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.querydsl.QPageRequest;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,8 +22,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.alibaba.fastjson.JSONObject;
 import com.booway.dao.server.UserServer;
 import com.booway.pojo.User;
+import com.booway.pojo.UserVo;
 
 @RestController
 @RequestMapping("/user")
@@ -162,4 +161,13 @@ public class UserController
 	  
 	    return "下载成功";
 }
+	
+	@RequestMapping(value="/13")
+	public String queryMohu13() throws Exception
+	{
+		UserVo userVo= new UserVo();
+		List<UserVo> list = userServer.queryVo(userVo);
+		return JSONObject.toJSONString(list);
+	}
+
 }

@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -25,7 +28,11 @@ import org.springframework.stereotype.Service;
 import com.booway.dao.UserRespority;
 import com.booway.dao.server.UserServer;
 import com.booway.pojo.User;
+import com.booway.pojo.User2;
+import com.booway.pojo.User3;
+import com.booway.pojo.UserVo;
 import com.booway.util.ExcelUtil;
+import com.booway.util.SqlUtils;
 
 @Service
 public class UserServerImpl implements UserServer 
@@ -33,6 +40,8 @@ public class UserServerImpl implements UserServer
 	@Autowired
 	UserRespority userRespority;
 
+	@PersistenceContext
+	EntityManager entityManager;
 	@Override
 	public int saveUser(User user)
 	{
@@ -213,5 +222,30 @@ public class UserServerImpl implements UserServer
 			System.out.println(e.getMessage());
 		}
 		return file;
+	}
+
+	@Override
+	public List<UserVo> queryVo(UserVo userVo) throws Exception 
+	{
+		SqlUtils s = new SqlUtils();
+		
+		List<Class<?>> list = new ArrayList<>();
+		list.add(User.class);
+		list.add(User2.class);
+		list.add(User3.class);
+		List<String> strings = new ArrayList<String>();
+		strings.add("id");
+		strings.add("uid");
+		StringBuilder stringBuilder = s.getFilds(list, UserVo.class, strings);
+		stringBuilder.append(" User user, User2 user2 , User3 user3 where  user.id = user2.id and user2.uid = user3.uid");
+		System.out.println(stringBuilder.toString());
+		Query query = entityManager.createQuery(stringBuilder.toString());
+		@SuppressWarnings("unused")
+		List<UserVo> resultList = query.getResultList();
+		for (UserVo u : resultList)
+		{
+			System.out.println(u);
+		}
+		return resultList;
 	}
 }

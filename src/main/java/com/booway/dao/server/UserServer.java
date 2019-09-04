@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.booway.pojo.User;
+import com.booway.pojo.UserVo;
 
 public interface UserServer 
 {
@@ -39,5 +40,6 @@ public interface UserServer
 	
 	public File exportFile(String condition);
 
+	public List<UserVo> queryVo(UserVo userVo) throws Exception;
 
 }
